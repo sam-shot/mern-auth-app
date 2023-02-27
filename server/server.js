@@ -12,7 +12,7 @@ app.use(morgan("tiny"));
 app.disable("x-powered-by");
 
 app.get("/", (req, res) => {
-  res.send("API is Runngfding");
+  res.send("App is running yayyy");
 });
 
 
