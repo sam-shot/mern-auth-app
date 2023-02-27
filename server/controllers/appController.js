@@ -1,5 +1,5 @@
 import user_model from "../model/user_model.js";
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
 import ENV from '../config.js';
 import genOTP from 'otp-generator'
