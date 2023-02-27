@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 async function connect() {
-  const uri = "mongodb://0.0.0.0:27017";
+  const uri = "mongodb+srv://samshot:samshot01@cluster0.farpl8z.mongodb.net/?retryWrites=true&w=majority";
 
   mongoose.set("strictQuery", true);
   const db = await mongoose.connect(uri);
