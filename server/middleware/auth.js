@@ -1,5 +1,4 @@
 
-import ENV from '../config.js';
 
 export default async function Auth(req, res, next) {
     try {

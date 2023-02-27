@@ -1,6 +1,5 @@
 import user_model from "../model/user_model.js";
 import bcrypt from 'bcryptjs';
-import ENV from '../config.js';
 import genOTP from 'otp-generator';
 
 
