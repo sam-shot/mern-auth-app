@@ -5,9 +5,12 @@ export const userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  lastName: {
+  username: {
     type: String,
     required: true,
+  },
+  lastName: {
+    type: String,
   },
   password: {
     type: String,

@@ -1,14 +1,15 @@
 import user_model from "../model/user_model.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import ENV from '../config.js'
+import ENV from '../config.js';
+import genOTP from 'otp-generator'
 
 
 /** MIDDLEWARE */
 
 export async function verifyUser(req, res, next){
     try {
-        const { email } = req.method = req.body;
+        const { email } = req.method == "GET" ? req.query:  req.body;
 
         let userExists = await user_model.findOne({email});
         if(!userExists) return res.status(404).send({error : "Can't find User"});
@@ -23,7 +24,7 @@ export async function verifyUser(req, res, next){
 
 export async function register(req, res) {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, username } = req.body;
     // check exist user
 
     const userExists = new Promise((resolve, reject) => {
@@ -43,7 +44,8 @@ export async function register(req, res) {
                     password: hashedPass,
                     email,
                     firstName,
-                    lastName
+                    lastName,
+                    username
                 });
                 user.save().then(
                     result=>{
@@ -69,8 +71,8 @@ export async function register(req, res) {
   }
 }
 
-export async function login(req, res) {
-    const { email, password} = req.body;
+export async function loginEmail(req, res) {
+    const { email, password } = req.body;
 
     try {
         user_model.findOne({email}).then(user => {
@@ -81,7 +83,7 @@ export async function login(req, res) {
                     userId: user._id,
                     email: user.email
                 }, ENV.JWT_SECRET, {
-                    expiresIn: '24h'
+                    expiresIn: '1h'
                 });
                 return res.status(200).send({
                     message: "Login Successfull",
@@ -99,15 +101,45 @@ export async function login(req, res) {
         return res.status(500).send({error});
     }
 }
+export async function loginUsername(req, res) {
+    const { username, password } = req.body;
+
+    try {
+        user_model.findOne({ username }).then(user => {
+            bcrypt.compare(password, user.password).then(passwordCheck => {
+                if(!passwordCheck) return res.status(400).send({error : "Passwords do not match"});
+
+                const token = jwt.sign({
+                    userId: user._id,
+                    email: user.email
+                }, ENV.JWT_SECRET, {
+                    expiresIn: '1h'
+                });
+                return res.status(200).send({
+                    message: "Login Successfull",
+                    email: user.email,
+                    token
+                })
+
+            }).catch(error => {
+                return res.status(400).send({error : "Passwords do not match"});
+            });
+        }).catch(error => {
+            return res.status(404).send({error : "User not Found!"})
+        });
+    } catch (error) {
+        return res.status(500).send({error});
+    }
+}
 
 export async function getUser(req, res) {
 
-    const { email } = req.params;
+    const { username } = req.params;
 
     try {
-        if(!email) return res.status(404).send({error : "Invalid Email Address"});
+        if(!username) return res.status(404).send({error : "Invalid User"});
 
-        user_model.findOne({email}, function(err, user) {
+        user_model.findOne({username}, function(err, user) {
             if(err) return res.status(500).send({err});
             if(!user) return res.status(501).send({error : "Could not find User"});
             
@@ -121,3 +153,43 @@ export async function getUser(req, res) {
     }
     
 }
+
+export async function updateUser(req, res){
+    try {
+        const {userId} = req.user;
+        if(userId){
+            const body = req.body;
+            user_model.updateOne({ _id : userId}, body , function(err, data) {
+                if(err) return res.status(500).send({error : "User not Found..!"});
+                return res.status(200).send({message : " Update Successful "});
+            });
+        } else {
+            return res.status(404).send({error : "User not Found..!"});
+        }
+        
+    } catch (error) {
+        return res.status(500).send({error});
+    }
+}
+
+export async function generateOTP(req, res) {
+    req.app.locals.OTP = genOTP.generate(4, {
+        lowerCaseAlphabets : false,
+        upperCaseAlphabets: false,
+        specialChars: false
+    });
+    res.status(200).send({code: req.app.locals.OTP})
+    
+}
+
+export async function verifyOtp(req, res) {
+    const { code } = req.query;
+
+    if(parseInt(req.app.locals.OTP) == parseInt(code)){
+        req.app.locals.OTP = null;
+        req.app.locals.resetSession = true;
+        res.status(200).send({message: "Verified"});
+    }
+    res.status(400).send({error : "Invalid OTP"});
+}
+
