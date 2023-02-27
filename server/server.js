@@ -30,3 +30,6 @@ connect().then(() => {
 }).catch(error =>{
     console.log("Invalid DB connection");
 });
+
+
+export default app;
