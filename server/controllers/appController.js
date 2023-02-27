@@ -188,8 +188,8 @@ export async function verifyOtp(req, res) {
     if(parseInt(req.app.locals.OTP) == parseInt(code)){
         req.app.locals.OTP = null;
         req.app.locals.resetSession = true;
-        res.status(200).send({message: "Verified"});
+        return res.status(200).send({message: "Verified"});
     }
-    res.status(400).send({error : "Invalid OTP"});
+    return res.status(400).send({error : "Invalid OTP"});
 }
 
