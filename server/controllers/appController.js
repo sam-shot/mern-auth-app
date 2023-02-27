@@ -1,5 +1,7 @@
 import user_model from "../model/user_model.js";
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken'
+import ENV from '../config.js';
 import genOTP from 'otp-generator';
 
 
@@ -77,16 +79,16 @@ export async function loginEmail(req, res) {
             bcrypt.compare(password, user.password).then(passwordCheck => {
                 if(!passwordCheck) return res.status(400).send({error : "Passwords do not match"});
 
-                // const token = jwt.sign({
-                //     userId: user._id,
-                //     email: user.email
-                // }, ENV.JWT_SECRET, {
-                //     expiresIn: '1h'
-                // });
+                const token = jwt.sign({
+                    userId: user._id,
+                    email: user.email
+                }, ENV.JWT_SECRET, {
+                    expiresIn: '1h'
+                });
                 return res.status(200).send({
                     message: "Login Successfull",
-                    email: user.email
-                    // token
+                    email: user.email,
+                    token
                 })
 
             }).catch(error => {
@@ -107,16 +109,16 @@ export async function loginUsername(req, res) {
             bcrypt.compare(password, user.password).then(passwordCheck => {
                 if(!passwordCheck) return res.status(400).send({error : "Passwords do not match"});
 
-                // const token = jwt.sign({
-                //     userId: user._id,
-                //     email: user.email
-                // }, ENV.JWT_SECRET, {
-                //     expiresIn: '1h'
-                // });
+                const token = jwt.sign({
+                    userId: user._id,
+                    email: user.email
+                }, ENV.JWT_SECRET, {
+                    expiresIn: '1h'
+                });
                 return res.status(200).send({
                     message: "Login Successfull",
-                    email: user.email
-                    // token
+                    email: user.email,
+                    token
                 })
 
             }).catch(error => {

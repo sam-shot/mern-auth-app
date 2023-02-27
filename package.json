@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "bcrypt": "^5.1.0",
-    "jsonwebtoken": "^9.0.0",
-    "mailgen": "^2.0.27",
-    "nodemailer": "^6.9.1",
-    "otp-generator": "^4.0.1"
-  }
-}

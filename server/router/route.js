@@ -2,14 +2,13 @@ import { Router } from "express";
 import * as controller from '../controllers/appController.js';
 import Auth, { localVar} from "../middleware/auth.js";
 const  router = Router();
-import { sendMailOTP } from "../controllers/mailer.js";
 
 
 
 router.route('/auth/register').post(controller.register);
 router.route('/auth/loginEmail').post(controller.loginEmail);
 router.route('/auth/loginUsername').post(controller.loginUsername);
-router.route('/auth/sendmail').post(sendMailOTP);
+// router.route('/auth/sendmail').post(sendMailOTP);
 
 
 
