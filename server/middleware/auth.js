@@ -18,8 +18,10 @@ export default async function Auth(req, res, next) {
 
 
 export function localVar(req, res, next) {
+    const {email} = req.body;
     req.app.locals = {
         OTP : null,
+        email: email,
         resetSession: false
     }
     

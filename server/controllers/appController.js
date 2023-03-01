@@ -3,13 +3,14 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken'
 import ENV from '../config.js';
 import genOTP from 'otp-generator';
+import nodemailer from "nodemailer";
 
 
 /** MIDDLEWARE */
 
 export async function verifyUser(req, res, next){
     try {
-        const { email } = req.method == "GET" ? req.query:  req.body;
+        const { email } = req.body;
 
         let userExists = await user_model.findOne({email});
         if(!userExists) return res.status(404).send({error : "Can't find User"});
@@ -173,19 +174,50 @@ export async function updateUser(req, res){
 }
 
 export async function generateOTP(req, res) {
-    req.app.locals.OTP = genOTP.generate(4, {
+    const { email } = req.body;
+    req.app.locals.OTP = genOTP.generate(5, {
         lowerCaseAlphabets : false,
         upperCaseAlphabets: false,
         specialChars: false
     });
-    res.status(200).send({code: req.app.locals.OTP})
+    
+  const code = req.app.locals.OTP;
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      type: "OAuth2",
+      user: "samshotmedia01@gmail.com",
+      pass: "vpsewuajvejtldhc",
+      clientId:
+        "1031421094648-97vod9qcmvqs3bcfcftnmdm4lmd19vqb.apps.googleusercontent.com",
+      clientSecret: "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",
+      refreshToken:
+        "1//04gshlZuDkprbCgYIARAAGAQSNwF-L9Ir4E1UNrdJQPlK8ZVEE84v9Gnd2BWkJ36eufmXYqT3jen0Bg5XTILwhaMtEFNjwcxvGpg",
+    },
+  });
+
+  const mailConfigurations = {
+    from: "samshotmedia01@gmail.com",
+    to: email,
+    subject: "Verification Code - Samdev.cf",
+    text:
+      "Hi! Here is your verification code " +code+ " for api.samdev.cf authentication",
+  };
+
+  transporter.sendMail(mailConfigurations, function (err, info) {
+    if (err) return res.status(500).send({ message: "An Error Occured" });
+    return res
+      .status(200)
+      .send({ message: "An Email will be sent to you shortly" });
+  });
     
 }
 
 export async function verifyOtp(req, res) {
-    const { code } = req.query;
+    const { code, email } = req.body;
 
-    if(parseInt(req.app.locals.OTP) == parseInt(code)){
+    if(parseInt(req.app.locals.OTP) == parseInt(code) && req.app.locals.email == email){
         req.app.locals.OTP = null;
         req.app.locals.resetSession = true;
         return res.status(200).send({message: "Verified"});
