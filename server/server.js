@@ -12,7 +12,7 @@ app.use(morgan("tiny"));
 app.disable("x-powered-by");
 
 app.get("/", (req, res) => {
-  res.send("App is runni hggfdgfd ng yayyy");
+  res.send("App is running in DEV mode");
 });
 
 
